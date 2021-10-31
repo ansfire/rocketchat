@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    ingress.kubernetes.io/ssl-proxy-headers: X-Forwarded-Proto:https
+    kubernetes.io/ingress.class: traefik
+    meta.helm.sh/release-name: rocketchat
+    meta.helm.sh/release-namespace: default
+    traefik.ingress.kubernetes.io/redirect-entry-point: https
+    traefik.ingress.kubernetes.io/router.middlewares: default-redirect-https@kubernetescrd
+    traefik.ress.kubernetes.io/whitelist-x-forwarded-for: "true"
+  labels:
+    app.kubernetes.io/instance: rocketchat
+    app.kubernetes.io/name: rocketchat
+  name: rocketchat-ingress
+  namespace: rocketchat
+spec:
+  rules:
+  - host: chat.smigula.io
+    http:
+      paths:
+      - backend:
+          service:
+            name: rocketchat-service
+            port:
+              number: 3000
+        path: /
+        pathType: ImplementationSpecific
+  tls:
+  - hosts:
+    - chat.smigula.io
+    secretName: chat-smigula-io-tls
